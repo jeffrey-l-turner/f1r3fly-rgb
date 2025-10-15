@@ -312,3 +312,171 @@ The `docs/` directory contains detailed implementation plans and research findin
 - `rgb-runtime-research-findings.md` - RGB runtime API exploration
 - `rgb-transfer-user-flows.md` - User interaction flows
 - `phase-3-rgb-integration-plan.md` - Original RGB integration plan
+
+## Security Considerations
+
+This project handles Bitcoin and RGB assets, requiring exceptional security practices. The following guidelines are CRITICAL for maintaining wallet security and protecting user funds.
+
+### Wallet Security Best Practices
+
+**Private Key Management:**
+- Private keys are derived from BIP39 mnemonics and NEVER exposed in logs or API responses
+- Mnemonics are stored in plaintext files (`wallets/{name}/mnemonic.txt`) - these files MUST be protected with file system permissions
+- The wallet uses BIP32 hierarchical derivation (m/84'/1'/0'/0/{index}) - each address has a unique private key
+- Never log or expose derived private keys in any form
+- All signing operations must occur server-side with keys kept in secure storage
+
+**Hardware Wallet Support:**
+- Current implementation uses software-based key derivation and signing
+- For production use, consider integrating hardware wallet support (Ledger, Trezor)
+- Hardware wallets should be the recommended approach for mainnet deployments
+- Document hardware wallet integration paths for future enhancement
+
+**Multi-Signature Considerations:**
+- Current wallet is single-signature (one key per address)
+- For high-value operations, consider implementing multi-signature requirements
+- RGB protocol supports multi-sig through Bitcoin's native script capabilities
+- Document multi-sig patterns for enterprise or institutional deployments
+
+**Key Derivation and HD Wallet Security:**
+- Uses BIP32 HD wallet structure with gap limit of 20 addresses
+- Address reuse is minimized through HD derivation
+- Master key is never directly used - all operations use derived keys
+- Ensure proper entropy sources for mnemonic generation (see `WalletManager::create_wallet`)
+- Never use weak or predictable entropy sources
+
+### Transaction Signing Security
+
+**Transaction Verification Before Signing:**
+- Always verify transaction details before signing (amounts, recipients, fees)
+- Implement user confirmation dialogs for all transaction signing operations
+- Display all inputs, outputs, and fee calculations clearly
+- For RGB transfers, show both Bitcoin transaction details AND RGB asset movement
+
+**Double-Spend Prevention:**
+- Use Esplora API to verify UTXO availability before building transactions
+- Implement proper UTXO locking during transaction construction
+- RGB asset UTXOs must be tracked separately to prevent asset loss
+- Mark UTXOs as "occupied" when they contain RGB allocations
+
+**Fee Estimation and Validation:**
+- Current default fee rate: 2 sat/vB (configurable per transaction)
+- Always validate fee rates against current network conditions
+- Prevent excessively high fees that could drain wallet funds
+- Implement fee estimation using mempool data for optimal transaction timing
+- For RGB transfers, account for both Bitcoin fees AND RGB commitment overhead
+
+**Transaction Malleability Concerns:**
+- Use native SegWit (P2WPKH) addresses exclusively to prevent malleability
+- PSBT (Partially Signed Bitcoin Transaction) format is used for RGB transfers
+- RGB commitments are bound to specific transaction IDs - malleability would break RGB transfers
+- Always use BIP141/BIP143 signing for witness transactions
+
+### Private Key Management
+
+**Never Log or Expose Private Keys:**
+- CRITICAL: Private keys MUST NEVER appear in logs, debug output, or API responses
+- Review all `eprintln!` debug statements to ensure no key material is logged
+- Use secure memory handling practices (consider zeroizing keys after use)
+- Implement audit logging that explicitly excludes sensitive data
+
+**Secure Key Generation:**
+- Use cryptographically secure random number generators for mnemonic generation
+- Ensure sufficient entropy (256 bits for 24-word mnemonics)
+- Never use predictable seeds, timestamps, or user-provided data as entropy
+- Validate mnemonic checksums on import to prevent corruption
+
+**Key Backup and Recovery:**
+- Users must securely backup their 24-word mnemonic phrase
+- Implement secure mnemonic display (one-time view with user confirmation)
+- Warn users about secure storage: paper wallets, metal backups, encrypted digital storage
+- Never store mnemonics in plaintext on shared/cloud storage
+- Consider implementing Shamir Secret Sharing (SLIP-39) for advanced backup scenarios
+
+**Memory Handling for Sensitive Data:**
+- Minimize time that private keys exist in memory
+- Consider using secure memory (mlock/mprotect) for key material
+- Zeroize memory containing keys immediately after use
+- Rust's memory safety helps, but explicit zeroization is still recommended
+- Review all key derivation paths for potential memory leaks
+
+### RGB Asset Handling Security
+
+**RGB Protocol Security Considerations:**
+- RGB uses client-side validation - each party must independently validate state
+- Contract state is stored locally in RGB runtime (not on Bitcoin blockchain)
+- Consensus rules are enforced by RGB schema (not Bitcoin network)
+- Invalid RGB operations can result in asset loss without blockchain-level protection
+
+**Asset Validation and Verification:**
+- Always validate consignment files before accepting transfers
+- Verify RGB contract genesis matches expected schema (RGB20-FNA)
+- Check that asset allocations match invoice amounts
+- Validate that Bitcoin transactions are properly confirmed before considering RGB transfer complete
+- Implement consignment validation using `RgbRuntime::validate_consignment`
+
+**State Transition Security:**
+- RGB state transitions must be validated against contract schema
+- Each state transition is cryptographically bound to a Bitcoin UTXO
+- Spent UTXOs must be tracked to prevent double-spending of RGB assets
+- Use RGB runtime sync (`sync-rgb` endpoint) to update contract states after transfers
+
+**Client-Side Validation Requirements:**
+- Both sender and receiver must validate RGB consignments independently
+- Invalid consignments should be rejected immediately with clear error messages
+- Maintain local RGB state consistency through proper sync operations
+- Never trust remote RGB state without local validation
+- Genesis consignments establish initial contract state and must be validated first
+
+### Bitcoin Security Best Practices
+
+**UTXO Management:**
+- Track all UTXOs with their address indices for proper key derivation during signing
+- Implement coin selection strategies that optimize privacy and fee efficiency
+- Mark UTXOs as "occupied" when they contain RGB assets to prevent accidental spending
+- Use UTXO unlocking feature (`/utxo/unlock`) carefully - it can expose RGB assets to loss
+- Consider implementing UTXO consolidation strategies for wallet maintenance
+
+**Address Reuse Considerations:**
+- HD wallet derivation minimizes address reuse automatically
+- Each receive operation should use a fresh address from the derivation path
+- Address index 0 is used as "primary address" for convenience - consider privacy implications
+- For maximum privacy, encourage users to generate new addresses for each receive
+- RGB operations may require specific address handling - document RGB-specific address usage
+
+**Network Security:**
+- All Bitcoin and RGB operations should use secure connections (HTTPS for Esplora)
+- Consider Tor support for enhanced privacy (hide IP addresses from Esplora/network)
+- Implement VPN recommendations for users in restrictive jurisdictions
+- Validate SSL certificates when connecting to blockchain APIs
+- Consider running a local Bitcoin/Esplora node for enhanced security and privacy
+
+**Reference Bitcoin Core Security Guidelines:**
+- Follow Bitcoin Core's security best practices: https://bitcoin.org/en/secure-your-wallet
+- Stay updated on Bitcoin security advisories and CVEs
+- Review Bitcoin Improvement Proposals (BIPs) for security-relevant changes
+- Test wallet behavior against Bitcoin Core reference implementation
+- Participate in Bitcoin security community discussions and audits
+
+### Common Security Practices
+
+**For LLM assistance in multi-repo workspace:**
+See [Security Best Practices](../../top-level-gitlab-profile/docs/common/security-best-practices.md)
+
+**For reference (GitLab):**
+[Security Best Practices](https://gitlab.com/smart-assets.io/gitlab-profile/-/blob/master/docs/common/security-best-practices.md)
+
+### Production Deployment Checklist
+
+Before deploying this wallet to production:
+
+1. Conduct comprehensive security audit of all wallet and RGB code
+2. Implement hardware wallet support for key management
+3. Add transaction confirmation dialogs with detailed breakdowns
+4. Implement proper logging that excludes all sensitive data
+5. Set up secure backup and recovery mechanisms
+6. Test against mainnet with small amounts first
+7. Implement rate limiting for API endpoints
+8. Add intrusion detection and monitoring
+9. Secure file system permissions for wallet directories
+10. Implement disaster recovery procedures
