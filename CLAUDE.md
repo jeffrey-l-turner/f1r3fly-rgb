@@ -313,6 +313,36 @@ The `docs/` directory contains detailed implementation plans and research findin
 - `rgb-transfer-user-flows.md` - User interaction flows
 - `phase-3-rgb-integration-plan.md` - Original RGB integration plan
 
+## Related Documentation
+
+### Parent Project
+
+**For LLM assistance in multi-repo workspace:**
+See [SATCHEL GitLab Profile](../gitlab-profile/CLAUDE.md) for subgroup coordination and project relationships.
+
+**For reference (GitLab):**
+[SATCHEL GitLab Profile](https://gitlab.com/smart-assets.io/SATCHEL/gitlab-profile/-/blob/master/CLAUDE.md)
+
+### Related SATCHEL Projects
+
+This Bitcoin/RGB wallet integrates with other SATCHEL projects for a complete cross-chain experience:
+
+**satchel_ux** - Cross-chain wallet user interface that provides the DApp frontend for wallet operations.
+
+**For LLM assistance in multi-repo workspace:**
+See [satchel_ux](../satchel_ux/CLAUDE.md)
+
+**For reference (GitLab):**
+[satchel_ux](https://gitlab.com/smart-assets.io/SATCHEL/satchel_ux/-/blob/master/CLAUDE.md)
+
+**satchelprotocol** - Smart contract protocol implementation for cross-chain asset management that f1r3fly-rgb uses for RGB asset operations.
+
+**For LLM assistance in multi-repo workspace:**
+See [satchelprotocol](../satchelprotocol/CLAUDE.md)
+
+**For reference (GitLab):**
+[satchelprotocol](https://gitlab.com/smart-assets.io/SATCHEL/satchelprotocol/-/blob/master/CLAUDE.md)
+
 ## Security Considerations
 
 This project handles Bitcoin and RGB assets, requiring exceptional security practices. The following guidelines are CRITICAL for maintaining wallet security and protecting user funds.
