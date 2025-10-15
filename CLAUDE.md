@@ -41,9 +41,13 @@ f1r3fly-rgb/
 
 ## Common Development Commands
 
-### **Git Interaction**:
-    - DO NOT ever `git add`, `git rm` or `git commit` code. Allow the user to always manually review git changes. `git mv` is permitted but needs to be confirmed by the user.
-    - DO NOT ever remove tests from lint or type checking.
+### Git Interaction
+
+**For LLM assistance in multi-repo workspace:**
+See [Git Interaction Policy](../../top-level-gitlab-profile/docs/common/git-interaction-policy.md)
+
+**For reference (GitLab):**
+[Git Interaction Policy](https://gitlab.com/smart-assets.io/gitlab-profile/-/blob/master/docs/common/git-interaction-policy.md)
 
 ### Git Submodules
 
@@ -280,13 +284,13 @@ Default fee rate is 2 sat/vB. All transaction building functions accept optional
 ## Testing & Debugging
 
 The backend includes extensive `eprintln!` debug output for RGB operations. Look for:
-- 🔍 (search) - Operation starting
-- 🔄 (refresh) - Processing step
-- ✅ (checkmark) - Success
-- ❌ (X) - Error
-- 💰 (money) - Fee/amount info
-- 📝 (memo) - Data/info
-- 📨 (envelope) - Network operations
+- [DEBUG] - Operation starting
+- [SYNC] - Processing step
+- [OK] - Success
+- [ERROR] - Error
+- [SATS] - Fee/amount info
+- [NOTE] - Data/info
+- [MSG] - Network operations
 
 Frontend uses console.log for debugging API calls and component state.
 
