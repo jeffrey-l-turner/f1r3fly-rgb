@@ -1,5 +1,7 @@
 # F1r3fly-RGB
 
+A Bitcoin Signet wallet with RGB compatibility, featuring a Rust backend and modern React frontend.
+
 ## Setup
 
 Clone the project:
@@ -18,88 +20,59 @@ Update submodules:
 git submodule update --remote
 ```
 
-## Running on Localhost
+## Components
 
-This project consists of two components that need to be running:
+### [Wallet Backend](./wallet/README.md)
+RGB-compatible Bitcoin Signet wallet backend service.
 
-### 1. Backend (Rust)
-
-The backend is a Rust HTTP server that provides the wallet API.
-
+**Quick Start:**
 ```bash
 cd wallet
 cargo run --release
 ```
+Server runs on `http://localhost:3000`
 
-The backend server will start at **http://127.0.0.1:3000**
+See [wallet/README.md](./wallet/README.md) for detailed documentation.
 
-You should see: `Starting RGB-compatible Bitcoin wallet server on 127.0.0.1:3000`
+### [Wallet Frontend](./wallet-frontend/README.md)
+Modern React UI for interacting with the wallet backend.
 
-### 2. Frontend (React)
-
-The frontend is a React + TypeScript application.
-
-**First time setup:**
+**Quick Start:**
 ```bash
 cd wallet-frontend
 npm install
-```
-
-**Start the development server:**
-```bash
-cd wallet-frontend
 npm run dev
 ```
+Frontend runs on `http://localhost:5173`
 
-The frontend will start at **http://localhost:5173**
+See [wallet-frontend/README.md](./wallet-frontend/README.md) for detailed documentation.
 
-Open your browser to http://localhost:5173 to use the wallet interface.
+## Development
 
-### Development Workflow
+### Running the Full Stack
 
-1. Start the backend in one terminal:
+1. **Start the backend** (in one terminal):
    ```bash
-   cd wallet && cargo run --release
+   cd wallet
+   cargo run --release
    ```
 
-2. Start the frontend in another terminal:
+2. **Start the frontend** (in another terminal):
    ```bash
-   cd wallet-frontend && npm run dev
+   cd wallet-frontend
+   npm run dev
    ```
 
-3. The frontend will automatically connect to the backend API at http://localhost:3000
+3. Open `http://localhost:5173` in your browser
 
-### Building for Production
+### Testing
 
-**Backend:**
-```bash
-cd wallet
-cargo build --release
-./target/release/wallet
-```
-
-**Frontend:**
-```bash
-cd wallet-frontend
-npm run build
-# Output will be in dist/ folder
-```
-
-## Testing
-
-Run backend tests:
-```bash
-cd wallet
-cargo test --release
-```
-
-Run frontend linter:
-```bash
-cd wallet-frontend
-npm run lint
-```
-
-Run all tests including submodules (excluding f1r3node):
+Run all tests across the project (excluding f1r3node):
 ```bash
 cargo test --release && git submodule foreach --recursive 'if [ "$name" != "f1r3node" ] && [ -f Cargo.toml ]; then echo "Testing $name"; cargo test --release; fi'
+```
+
+Run all tests including f1r3node:
+```bash
+cargo test --release && git submodule foreach --recursive 'if [ -f Cargo.toml ]; then echo "Testing $name"; cargo test --release; fi'
 ```

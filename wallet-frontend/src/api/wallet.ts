@@ -16,12 +16,15 @@ import type {
   SendBitcoinResponse,
   IssueAssetRequest,
   IssueAssetResponse,
+  IssueAssetResponseWithFirefly,
   GenerateInvoiceRequest,
   GenerateInvoiceResponse,
   SendTransferRequest,
   SendTransferResponse,
   AcceptConsignmentResponse,
   ExportGenesisResponse,
+  DeleteWalletResponse,
+  FireflyNodeStatus,
 } from './types';
 
 export const walletApi = {
@@ -48,6 +51,14 @@ export const walletApi = {
    */
   listWallets: async (): Promise<WalletMetadata[]> => {
     const response = await apiClient.get<WalletMetadata[]>('/wallet/list');
+    return response.data;
+  },
+
+  /**
+   * Delete a wallet permanently (cannot be undone)
+   */
+  deleteWallet: async (name: string): Promise<DeleteWalletResponse> => {
+    const response = await apiClient.delete<DeleteWalletResponse>(`/wallet/${name}`);
     return response.data;
   },
 
@@ -149,6 +160,20 @@ export const walletApi = {
   },
 
   /**
+   * Issue a new RGB20 asset with F1r3fly/Rholang execution
+   */
+  issueAssetWithFirefly: async (
+    name: string,
+    request: IssueAssetRequest
+  ): Promise<IssueAssetResponseWithFirefly> => {
+    const response = await apiClient.post<IssueAssetResponseWithFirefly>(
+      `/wallet/${name}/issue-asset-firefly`,
+      request
+    );
+    return response.data;
+  },
+
+  /**
    * Generate RGB invoice for receiving assets
    */
   generateInvoice: async (
@@ -205,6 +230,14 @@ export const walletApi = {
     const response = await apiClient.get<ExportGenesisResponse>(
       `/wallet/${name}/export-genesis/${contractId}`
     );
+    return response.data;
+  },
+
+  /**
+   * Get Firefly node status
+   */
+  getFireflyStatus: async (): Promise<FireflyNodeStatus> => {
+    const response = await apiClient.get<FireflyNodeStatus>('/firefly/status');
     return response.data;
   },
 };

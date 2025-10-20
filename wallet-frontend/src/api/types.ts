@@ -18,6 +18,7 @@ export interface WalletInfo {
   name: string;
   mnemonic: string;
   first_address: string;
+  public_address: string;
   descriptor: string;
 }
 
@@ -70,6 +71,7 @@ export interface BalanceInfo {
   utxo_count: number;
   utxos: UTXO[];
   known_contracts: KnownContract[];
+  display_address: string;
 }
 
 export interface SyncResult {
@@ -123,6 +125,26 @@ export interface IssueAssetResponse {
   genesis_seal: string;
 }
 
+export interface IssueAssetResponseWithFirefly {
+  contract_id: string;
+  genesis_seal: string;
+  firefly_deploy_id: string;
+  firefly_block_hash: string;
+  firefly_contract_data: {
+    status: string;
+    message: string;
+    deploy_id: string;
+    block_hash: string;
+    asset_name: string;
+    ticker: string;
+    supply: number;
+    precision: number;
+    genesis_utxo: string;
+    timestamp: number;
+    contract_type: string;
+  };
+}
+
 export interface GenerateInvoiceRequest {
   contract_id: string;
   amount: number;  // Required (Backend is optional)
@@ -161,6 +183,11 @@ export interface ExportGenesisResponse {
   download_url: string;
 }
 
+export interface DeleteWalletResponse {
+  wallet_name: string;
+  status: string;
+}
+
 // Precision options for RGB20 assets
 export const PRECISION_OPTIONS = [
   { value: 0, label: 'Indivisible (0 decimals)', example: '1' },
@@ -179,5 +206,14 @@ export const PRECISION_OPTIONS = [
 // Error response type
 export interface ApiError {
   error: string;
+}
+
+// Firefly integration types
+export interface FireflyNodeStatus {
+  node_connected: boolean;
+  node_url: string;
+  peers: number | null;
+  version: string | null;
+  message: string;
 }
 
